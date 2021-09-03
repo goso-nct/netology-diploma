@@ -28,6 +28,11 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter:5.7.2'
     testImplementation 'com.codeborne:selenide:5.24.0'
     testImplementation 'io.qameta.allure:allure-selenide:2.14.0'
+    testImplementation 'io.rest-assured:rest-assured:4.4.0'
+    testImplementation 'io.rest-assured:json-schema-validator:4.4.0'
+    testImplementation 'io.rest-assured:json-path:4.4.0'
+    testImplementation 'commons-dbutils:commons-dbutils:1.7'
+    testImplementation 'mysql:mysql-connector-java:8.0.25'
 }
 
 test {
