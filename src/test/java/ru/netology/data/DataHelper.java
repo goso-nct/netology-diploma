@@ -24,9 +24,9 @@ public class DataHelper
         dbUser = System.getenv("DB_USER");
         dbPass = System.getenv("DB_PASS");
 
-        dbUrl  = dbUrl  == null ? "jdbc:mysql://localhost:3306/app" : dbUrl;
-        dbUser = dbUser == null ? "app" : dbUser;
-        dbPass = dbPass == null ? "pass" : dbPass;
+        dbUrl  = (dbUrl  == null) ? "jdbc:mysql://localhost:3306/app" : dbUrl;
+        dbUser = (dbUser == null) ? "app" : dbUser;
+        dbPass = (dbPass == null) ? "pass" : dbPass;
     }
 
     private DataHelper() {}
@@ -37,9 +37,7 @@ public class DataHelper
     public static String getDeclinedCard() {
         return "4444 4444 4444 4442";
     }
-    public static String getInvalidCard() {
-        return "4444 4444 4444 4443";
-    }
+    public static String getInvalidCard()  { return "4444 4444 4444 4443"; }
 
     public static String generateName() {
         return faker.name().lastName().toUpperCase();
@@ -53,6 +51,13 @@ public class DataHelper
         return faker.random().nextInt(Year.now().plusYears(1).getValue(), Year.now().plusYears(5).getValue()).toString().substring(2);
     }
     public static String getInvalidMonth() { return "13"; }
+    public static String getInvalidYearInFuture() {
+        return Year.now().plusYears(10).toString().substring(2);
+    }
+    public static String getInvalidYearInPast() {
+        return Year.now().minusYears(11).toString().substring(2);
+    }
+    public static String getInvalidCvc() { return "1"; }
 
     @SneakyThrows
     public static void deleteData() {

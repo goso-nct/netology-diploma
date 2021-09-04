@@ -3,6 +3,8 @@ package ru.netology;
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 import static com.codeborne.selenide.Selenide.$$;
+
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
@@ -13,7 +15,7 @@ import ru.netology.data.DataHelper;
 
 public class ShopApplicationTest {
 
-    private static String appUrl;
+    static String appUrl;
     static {
         appUrl = System.getenv("APP_URL");
         appUrl = (appUrl == null) ? "http://localhost:8080" : appUrl;
@@ -27,8 +29,10 @@ public class ShopApplicationTest {
     SelenideElement year = $$("[class=input__control]").get(2);
     SelenideElement holder = $$("[class=input__control]").get(3);
     SelenideElement cvc = $$("[class=input__control]").get(4);
-    SelenideElement noteAccepted = $(".notification_status_ok");
-    SelenideElement noteRejected = $(".notification_status_error");
+    SelenideElement noticeAccepted = $(".notification_status_ok");
+    SelenideElement noticeRejected = $(".notification_status_error");
+    SelenideElement subErr = $(".input__sub");
+    ElementsCollection subErrList = $$(".input__sub");
 
     @BeforeAll
     static void setUpAll() {
@@ -37,15 +41,19 @@ public class ShopApplicationTest {
 
     @BeforeEach
     public void setUpEach() {
-        DataHelper.deleteData();
+        //DataHelper.deleteData();
         open(appUrl);
     }
 
     @AfterEach
-    void tearDownEach() { closeWebDriver(); }
+    void tearDownEach() {
+        closeWebDriver();
+    }
 
     @AfterAll
-    static void tearDownAll() { SelenideLogger.removeListener("allure"); }
+    static void tearDownAll() {
+        SelenideLogger.removeListener("allure");
+    }
 
 
     // ----------------------------  DEBIT  ---------------------------------------
@@ -70,6 +78,70 @@ public class ShopApplicationTest {
         btnDebitBuy.click();
         card.setValue(DataHelper.getInvalidCard());
         rejected();
+    }
+
+    @Test
+    void shouldBeMessageIfMonthInvalid() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        month.setValue(DataHelper.getInvalidMonth());
+        year.setValue(DataHelper.generateYear());
+        holder.setValue(DataHelper.generateName());
+        cvc.setValue(DataHelper.generateCvc());
+        btnContinue.click();
+        subErr.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Неверно указан срок действия карты"));
+    }
+
+    @Test
+    void shouldBeMessageIfYearInvalidInFuture() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        month.setValue(DataHelper.generateMonth());
+        year.setValue(DataHelper.getInvalidYearInFuture());
+        holder.setValue(DataHelper.generateName());
+        cvc.setValue(DataHelper.generateCvc());
+        btnContinue.click();
+        subErr.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Неверно указан срок действия карты"));
+    }
+
+    @Test
+    void shouldBeMessageIfYearInvalidInPast() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        month.setValue(DataHelper.generateMonth());
+        year.setValue(DataHelper.getInvalidYearInPast());
+        holder.setValue(DataHelper.generateName());
+        cvc.setValue(DataHelper.generateCvc());
+        btnContinue.click();
+        subErr.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Истёк срок действия карты"));
+    }
+
+    @Test
+    void shouldBeMessageIfHolderIsEmpty() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        month.setValue(DataHelper.generateMonth());
+        year.setValue(DataHelper.generateYear());
+        cvc.setValue(DataHelper.generateCvc());
+        btnContinue.click();
+        subErr.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Поле обязательно для заполнения"));
+    }
+
+    @Test
+    void shouldBeMessageIfCvcIsInvalid() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        month.setValue(DataHelper.generateMonth());
+        year.setValue(DataHelper.generateYear());
+        holder.setValue(DataHelper.generateName());
+        cvc.setValue(DataHelper.getInvalidCvc());
+        btnContinue.click();
+        subErr.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Неверный формат"));
     }
 
 
@@ -111,19 +183,19 @@ public class ShopApplicationTest {
     void accepted() {
         fillOtherCardFields();
         btnContinue.click();
-        noteAccepted.shouldBe(appear, Duration.ofSeconds(15))
+        noticeAccepted.shouldBe(appear, Duration.ofSeconds(15))
                 .shouldHave(text("Операция одобрена Банком"));
     }
 
     void rejected() {
         fillOtherCardFields();
         btnContinue.click();
-        noteRejected.shouldBe(appear, Duration.ofSeconds(15))
+        noticeRejected.shouldBe(appear, Duration.ofSeconds(15))
                 .shouldHave(text("Банк отказал в проведении операции"));
     }
 
 
-    //@Test
+    @Test
     //@RepeatedTest(15)
     void test() {
         //DataHelper.deleteData();
@@ -139,6 +211,7 @@ public class ShopApplicationTest {
         //System.out.println(DataHelper.generateMonth());
         //System.out.println(DataHelper.generateName());
         //System.out.println(DataHelper.generateCIV());
+        //System.out.println(DataHelper.getInvalidYear());
     }
 
 }
