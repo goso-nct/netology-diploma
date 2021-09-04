@@ -1,13 +1,14 @@
 package ru.netology.data;
 
 import com.github.javafaker.Faker;
+import lombok.SneakyThrows;
 import ru.netology.data.entity.CreditRequestEntity;
 import ru.netology.data.entity.OrderEntity;
 import ru.netology.data.entity.PaymentEntity;
 
 import java.sql.DriverManager;
-import java.sql.SQLException;
 import java.time.LocalDateTime;
+import java.time.Year;
 import java.util.Locale;
 
 public class DataHelper
@@ -47,119 +48,138 @@ public class DataHelper
         int mi = faker.random().nextInt(1,12);
         return String.format("%02d", mi);
     }
-    public static String generateCIV() { return faker.random().nextInt(100,999).toString(); }
-    public static String generateYear() { return faker.random().nextInt(22,25).toString(); }
-    public static String getLastYear() { return "20"; }
-    public static String getInvalidMonth() { return "20"; }
+    public static String generateCvc() { return faker.random().nextInt(100,999).toString(); }
+    public static String generateYear() {
+        return faker.random().nextInt(Year.now().plusYears(1).getValue(), Year.now().plusYears(5).getValue()).toString().substring(2);
+    }
+    public static String getInvalidMonth() { return "13"; }
 
+    @SneakyThrows
+    public static void deleteData() {
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.createStatement();
+        dataStmt.execute("TRUNCATE payment_entity");
+        dataStmt.execute("TRUNCATE credit_request_entity");
+        dataStmt.execute("TRUNCATE order_entity");
+    }
 
+    @SneakyThrows
     public static String getOrderId() {
         String id = null;
         String sql = "SELECT id FROM order_entity";
-        try(
-                var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-                var dataStmt = conn.prepareStatement(sql);
-        ){
-            var rs = dataStmt.executeQuery();
-            rs.next();
-            id = rs.getString(1);
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        var rs = dataStmt.executeQuery();
+        rs.next();
+        id = rs.getString(1);
         return id;
     }
 
+    @SneakyThrows
+    public static OrderEntity getOrder() {
+        OrderEntity obj = null;
+        String sql = "SELECT id, created, credit_id, payment_id FROM order_entity";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        var rs = dataStmt.executeQuery();
+        if (rs != null && rs.next()) {
+            obj = new OrderEntity();
+            obj.setId(rs.getString(1));
+            obj.setCreated(rs.getObject(2, LocalDateTime.class));
+            obj.setCreditId(rs.getString(3));
+            obj.setPaymentId(rs.getString(4));
+        }
+        return obj;
+    }
+
+    @SneakyThrows
     public static OrderEntity getOrderById(String id) {
         OrderEntity obj = null;
-        String sql =
-                "SELECT credit_id, payment_id, created" +
-                "  FROM order_entity" +
-                "  WHERE id = ?";
-        try(
-                var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-                var dataStmt = conn.prepareStatement(sql);
-        ){
-            dataStmt.setString(1, id);
-            var rs = dataStmt.executeQuery();
-            if (rs != null && rs.next()) {
-                obj = new OrderEntity();
-                obj.setId(id);
-                obj.setPaymentId(rs.getString("payment_id"));
-                obj.setCreditId(rs.getString("credit_id"));
-                obj.setCreated(rs.getObject("created", LocalDateTime.class));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        String sql = "SELECT created, credit_id, payment_id FROM order_entity WHERE id = ?";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        dataStmt.setString(1, id);
+        var rs = dataStmt.executeQuery();
+        if (rs != null && rs.next()) {
+            obj = new OrderEntity();
+            obj.setId(id);
+            obj.setCreated(rs.getObject(1, LocalDateTime.class));
+            obj.setCreditId(rs.getString(2));
+            obj.setPaymentId(rs.getString(3));
         }
         return obj;
     }
 
+    @SneakyThrows
+    public static PaymentEntity getPayment() {
+        PaymentEntity obj = null;
+        String sql = "SELECT id, amount, created, status, transaction_id FROM payment_entity";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        var rs = dataStmt.executeQuery();
+        if (rs != null && rs.next()) {
+            obj = new PaymentEntity();
+            obj.setId(rs.getString(1));
+            obj.setAmount(rs.getInt(3));
+            obj.setCreated(rs.getObject(3, LocalDateTime.class));
+            obj.setStatus(Status.valueOf(rs.getString(4)));
+            obj.setTransactionId(rs.getString(5));
+        }
+        return obj;
+    }
+
+    @SneakyThrows
     public static PaymentEntity getPaymentById(String id) {
         PaymentEntity obj = null;
-        String sql =
-                "SELECT amount, created, status, transaction_id  " +
-                        "  FROM payment_entity" +
-                        "  WHERE id = ?";
-        try(
-                var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-                var dataStmt = conn.prepareStatement(sql);
-        ){
-            dataStmt.setString(1, id);
-            var rs = dataStmt.executeQuery();
-            if (rs != null && rs.next()) {
-                obj = new PaymentEntity();
-                obj.setId(id);
-                obj.setAmount(rs.getInt("amount"));
-                obj.setCreated(rs.getObject("created", LocalDateTime.class));
-                obj.setStatus(Status.valueOf(rs.getString("status")));
-                obj.setTransactionId(rs.getString("transaction_id"));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        String sql = "SELECT amount, created, status, transaction_id  FROM payment_entity WHERE id = ?";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        dataStmt.setString(1, id);
+        var rs = dataStmt.executeQuery();
+        if (rs != null && rs.next()) {
+            obj = new PaymentEntity();
+            obj.setId(id);
+            obj.setAmount(rs.getInt(1));
+            obj.setCreated(rs.getObject(2, LocalDateTime.class));
+            obj.setStatus(Status.valueOf(rs.getString(3)));
+            obj.setTransactionId(rs.getString(4));
         }
         return obj;
     }
 
+    @SneakyThrows
+    public static CreditRequestEntity getCreditRequest() {
+        CreditRequestEntity obj = null;
+        String sql = "SELECT id, bank_id, created, status FROM credit_request_entity";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        var rs = dataStmt.executeQuery();
+        if (rs != null && rs.next()) {
+            obj = new CreditRequestEntity();
+            obj.setId(rs.getString(1));
+            obj.setBankId(rs.getString(2));
+            obj.setCreated(rs.getObject(3, LocalDateTime.class));
+            obj.setStatus(Status.valueOf(rs.getString(4)));
+        }
+        return obj;
+    }
+
+    @SneakyThrows
     public static CreditRequestEntity getCreditRequestById(String id) {
         CreditRequestEntity obj = null;
-        String sql =
-                "SELECT bank_id, created, status" +
-                        "  FROM credit_request_entity" +
-                        "  WHERE id = ?";
-        try(
-                var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-                var dataStmt = conn.prepareStatement(sql);
-        ){
-            dataStmt.setString(1, id);
-            var rs = dataStmt.executeQuery();
-            if (rs != null && rs.next()) {
-                obj = new CreditRequestEntity();
-                obj.setId(id);
-                obj.setBankId(rs.getString("bank_id"));
-                obj.setCreated(rs.getObject("created", LocalDateTime.class));
-                obj.setStatus(Status.valueOf(rs.getString("status")));
-            }
-            rs.close();
-        } catch (SQLException e) {
-            e.printStackTrace();
+        String sql = "SELECT bank_id, created, status FROM credit_request_entity WHERE id = ?";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.prepareStatement(sql);
+        dataStmt.setString(1, id);
+        var rs = dataStmt.executeQuery();
+        if (rs != null && rs.next()) {
+            obj = new CreditRequestEntity();
+            obj.setId(id);
+            obj.setBankId(rs.getString(1));
+            obj.setCreated(rs.getObject(2, LocalDateTime.class));
+            obj.setStatus(Status.valueOf(rs.getString(3)));
         }
         return obj;
-    }
-
-    public static void deleteData() {
-        try(
-            var conn = DriverManager.getConnection(dbUrl, "app", "pass");
-            var dataStmt = conn.createStatement();
-        ){
-            dataStmt.execute("TRUNCATE payment_entity");
-            dataStmt.execute("TRUNCATE credit_request_entity");
-            dataStmt.execute("TRUNCATE order_entity");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
     }
 
 }

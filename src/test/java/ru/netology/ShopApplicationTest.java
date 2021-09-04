@@ -1,52 +1,130 @@
 package ru.netology;
 
+import static com.codeborne.selenide.Condition.*;
+import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.$$;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
+import java.time.Duration;
+
 import ru.netology.data.DataHelper;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShopApplicationTest {
 
-    SelenideElement element;
+    private static String appUrl;
+    static {
+        appUrl = System.getenv("APP_URL");
+        appUrl = (appUrl == null) ? "http://localhost:8080" : appUrl;
+    }
 
-//    @BeforeAll
-//    static void setUpAll() {
-//        SelenideLogger.addListener("allure", new AllureSelenide());
-//    }
+    SelenideElement btnDebitBuy = $$("[class=button__content]").get(0);
+    SelenideElement btnCreditBuy = $$("[class=button__content]").get(1);
+    SelenideElement btnContinue = $$("[class=button__content]").get(2);
+    SelenideElement card = $$("[class=input__control]").get(0);
+    SelenideElement month = $$("[class=input__control]").get(1);
+    SelenideElement year = $$("[class=input__control]").get(2);
+    SelenideElement holder = $$("[class=input__control]").get(3);
+    SelenideElement cvc = $$("[class=input__control]").get(4);
+    SelenideElement noteAccepted = $(".notification_status_ok");
+    SelenideElement noteRejected = $(".notification_status_error");
 
-//    @BeforeEach
-//    public void setUpEach() {
-//        user = DataGenerator.Registration.generateUser();
-//        firstMeetingDate = DataGenerator.generateDate(3, 5);
-//        secondMeetingDate = DataGenerator.generateDate(5, 10);
-//        open("http://localhost:9999");
-//    }
-//
-//    @AfterEach
-//    void tearDownEach() {
-//        closeWebDriver();
-//    }
-//
-//    @AfterAll
-//    static void tearDownAll() { SelenideLogger.removeListener("allure"); }
+    @BeforeAll
+    static void setUpAll() {
+        SelenideLogger.addListener("allure", new AllureSelenide());
+    }
 
-//    @Test
-//    void shouldDontSuccessfulIfInvalidCity() {
-//        $("[data-test-id=city] input").setValue(DataGenerator.invalidCity);
-//        $("[data-test-id=date] input").doubleClick();
-//        $("[data-test-id=date] input").sendKeys(Keys.DELETE);
-//        $("[data-test-id=date] input").setValue(firstMeetingDate);
-//
-//        $("[data-test-id=name] input").setValue(user.getName());
-//        $("[data-test-id=phone] input").setValue(user.getPhone());
-//        $("[data-test-id=agreement] .checkbox__box").click();
-//        $("[role=button] .button__content").click();
-//
-//        $(byText("Доставка в выбранный город недоступна")).isDisplayed();
-//    }
+    @BeforeEach
+    public void setUpEach() {
+        DataHelper.deleteData();
+        open(appUrl);
+    }
+
+    @AfterEach
+    void tearDownEach() { closeWebDriver(); }
+
+    @AfterAll
+    static void tearDownAll() { SelenideLogger.removeListener("allure"); }
+
+
+    // ----------------------------  DEBIT  ---------------------------------------
+
+
+    @Test
+    void shouldBeSuccessfulDebitBuyByApprovedCard() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        accepted();
+    }
+
+    @Test
+    void shouldBeFailureDebitBuyByDeclinedCard() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getDeclinedCard());
+        rejected();
+    }
+
+    @Test
+    void shouldBeFailureDebitBuyByInvalidCard() {
+        btnDebitBuy.click();
+        card.setValue(DataHelper.getInvalidCard());
+        rejected();
+    }
+
+
+    // ----------------------------  CREDIT  ---------------------------------------
+
+
+    @Test
+    void shouldBeSuccessfulCreditBuyByApprovedCard() {
+        btnCreditBuy.click();
+        card.setValue(DataHelper.getApprovedCard());
+        accepted();
+    }
+
+    @Test
+    void shouldBeFailureCreditBuyByDeclinedCard() {
+        btnCreditBuy.click();
+        card.setValue(DataHelper.getDeclinedCard());
+        rejected();
+    }
+
+    @Test
+    void shouldBeFailureCreditBuyByInvalidCard() {
+        btnCreditBuy.click();
+        card.setValue(DataHelper.getInvalidCard());
+        rejected();
+    }
+
+
+    // ----------------------------  support  ---------------------------------------
+
+
+    void fillOtherCardFields() {
+        month.setValue(DataHelper.generateMonth());
+        year.setValue(DataHelper.generateYear());
+        holder.setValue(DataHelper.generateName());
+        cvc.setValue(DataHelper.generateCvc());
+    }
+
+    void accepted() {
+        fillOtherCardFields();
+        btnContinue.click();
+        noteAccepted.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Операция одобрена Банком"));
+    }
+
+    void rejected() {
+        fillOtherCardFields();
+        btnContinue.click();
+        noteRejected.shouldBe(appear, Duration.ofSeconds(15))
+                .shouldHave(text("Банк отказал в проведении операции"));
+    }
+
 
     //@Test
-    @RepeatedTest(5)
+    //@RepeatedTest(15)
     void test() {
         //DataHelper.deleteData();
         //String orderId = DataHelper.getOrderId();
@@ -57,12 +135,10 @@ public class ShopApplicationTest {
         //System.out.println(pe);
         //CreditRequestEntity cre = DataHelper.getCreditRequestById("5861f697-3fa6-46e0-95f9-b3d404445a56");
         //System.out.println(cre);
-
+        //System.out.println(DataHelper.generateYear());
         //System.out.println(DataHelper.generateMonth());
         //System.out.println(DataHelper.generateName());
-        System.out.println(DataHelper.generateCIV());
+        //System.out.println(DataHelper.generateCIV());
     }
-
-
 
 }
