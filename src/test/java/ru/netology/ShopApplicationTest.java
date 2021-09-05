@@ -183,14 +183,14 @@ public class ShopApplicationTest {
     void accepted() {
         fillOtherCardFields();
         btnContinue.click();
-        noticeAccepted.shouldBe(appear, Duration.ofSeconds(15))
+        noticeAccepted.shouldBe(appear, Duration.ofSeconds(10))
                 .shouldHave(text("Операция одобрена Банком"));
     }
 
     void rejected() {
         fillOtherCardFields();
         btnContinue.click();
-        noticeRejected.shouldBe(appear, Duration.ofSeconds(15))
+        noticeRejected.shouldBe(appear, Duration.ofSeconds(10))
                 .shouldHave(text("Банк отказал в проведении операции"));
     }
 
