@@ -46,63 +46,42 @@ public class ShopApplicationTest {
 
     @Test
     void shouldBeSuccessfulDebitBuyByApprovedCard() {
-        appPage.debitBuy();
-        appPage.useApprovedCard();
-        appPage.expectAccept();
+        new DebitBuy().buyByApprovedCard();
     }
 
     @Test
     void shouldBeFailureDebitBuyByDeclinedCard() {
-        appPage.debitBuy();
-        appPage.useDeclinedCard();
-        appPage.expectReject();
+        new DebitBuy().debitBuyByDeclinedCard();
     }
 
     @Test
     void shouldBeFailureDebitBuyByInvalidCard() {
-        appPage.debitBuy();
-        appPage.useInvalidCard();
-        appPage.expectReject();
+        new DebitBuy().debitBuyByInvalidCard();
     }
 
     @Test
     void shouldBeMessageIfMonthInvalid() {
-        appPage.debitBuy();
-        appPage.useApprovedCard();
-        appPage.setInvalidMonth();
-        appPage.expectNoticeCardInvalidPeriod();
+        new DebitBuy().messageIfMonthInvalid();
     }
 
     @Test
     void shouldBeMessageIfYearInvalidInFuture() {
-        appPage.debitBuy();
-        appPage.useApprovedCard();
-        appPage.setInvalidYearInFuture();
-        appPage.expectNoticeCardInvalidPeriod();
+        new DebitBuy().messageIfYearInvalidInFuture();
     }
 
     @Test
     void shouldBeMessageIfYearInvalidInPast() {
-        appPage.debitBuy();
-        appPage.useApprovedCard();
-        appPage.setInvalidYearInPast();
-        appPage.expectNoticeCardExpired();
+        new DebitBuy().messageIfYearInvalidInPast();
     }
 
     @Test
     void shouldBeMessageIfHolderIsEmpty() {
-        appPage.debitBuy();
-        appPage.useApprovedCard();
-        appPage.noSetHolder();
-        appPage.expectNoticeFieldRequired();
+        new DebitBuy().messageIfHolderIsEmpty();
     }
 
     @Test
     void shouldBeMessageIfCvcIsInvalid() {
-        appPage.debitBuy();
-        appPage.useApprovedCard();
-        appPage.setInvalidCvc();
-        appPage.expectNoticeInvalidFormat();
+        new DebitBuy().messageIfCvcIsInvalid();
     }
 
 
@@ -111,23 +90,17 @@ public class ShopApplicationTest {
 
     @Test
     void shouldBeSuccessfulCreditBuyByApprovedCard() {
-        appPage.creditBuy();
-        appPage.useApprovedCard();
-        appPage.expectAccept();
+        new CreditBuy().buyByApprovedCard();
     }
 
     @Test
     void shouldBeFailureCreditBuyByDeclinedCard() {
-        appPage.creditBuy();
-        appPage.useDeclinedCard();
-        appPage.expectReject();
+        new CreditBuy().buyByDeclinedCard();
     }
 
     @Test
     void shouldBeFailureCreditBuyByInvalidCard() {
-        appPage.creditBuy();
-        appPage.useDeclinedCard();
-        appPage.expectReject();
+        new CreditBuy().buyByInvalidCard();
     }
 
     @Test
