@@ -1,7 +1,11 @@
 package ru.netology;
 
 public class DebitBuy {
-    void buyByApprovedCard(){
 
+    void DebitBuy() {
+
+    }
+
+    void buyByApprovedCard(){
     };
 }

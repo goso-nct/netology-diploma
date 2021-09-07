@@ -1,12 +1,11 @@
 package ru.netology;
 
-import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
 
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.closeWebDriver;
+import static com.codeborne.selenide.Selenide.open;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class ShopApplicationTest {
@@ -16,19 +15,6 @@ public class ShopApplicationTest {
         appUrl = System.getenv("APP_URL");
         appUrl = (appUrl == null) ? "http://localhost:8080" : appUrl;
     }
-
-    SelenideElement btnDebitBuy = $$("[class=button__content]").get(0);
-    SelenideElement btnCreditBuy = $$("[class=button__content]").get(1);
-    SelenideElement btnContinue = $$("[class=button__content]").get(2);
-    SelenideElement card = $$("[class=input__control]").get(0);
-    SelenideElement month = $$("[class=input__control]").get(1);
-    SelenideElement year = $$("[class=input__control]").get(2);
-    SelenideElement holder = $$("[class=input__control]").get(3);
-    SelenideElement cvc = $$("[class=input__control]").get(4);
-    SelenideElement noticeAccepted = $(".notification_status_ok");
-    SelenideElement noticeRejected = $(".notification_status_error");
-    SelenideElement subErr = $(".input__sub");
-    ElementsCollection subErrList = $$(".input__sub");
 
     AppPage appPage;
 
