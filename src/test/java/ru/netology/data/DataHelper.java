@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Locale;
 
-public class DataHelper
-{
+public class DataHelper {
+
     static Faker faker = new Faker(new Locale("en"));
 
     private static String dbUrl;
