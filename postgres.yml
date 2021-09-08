@@ -1,0 +1,21 @@
+version: '3'
+
+services:
+
+  db:
+    image: postgres:12.8-alpine3.14
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=pass
+
+  adminer:
+    image: adminer
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - '8000:8080'
