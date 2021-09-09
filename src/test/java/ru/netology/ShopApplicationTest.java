@@ -32,7 +32,6 @@ public class ShopApplicationTest {
 
     @BeforeEach
     public void setUpEach() {
-        DataHelper.deleteData();
         appPage = new AppPage();
         open(appUrl);
     }
@@ -57,12 +56,12 @@ public class ShopApplicationTest {
 
     @Test
     void shouldBeFailureDebitBuyByDeclinedCard() {
-        new DebitBuy().debitBuyByDeclinedCard();
+        new DebitBuy().buyByDeclinedCard();
     }
 
     @Test
     void shouldBeFailureDebitBuyByInvalidCard() {
-        new DebitBuy().debitBuyByInvalidCard();
+        new DebitBuy().buyByInvalidCard();
     }
 
     @Test
@@ -112,19 +111,45 @@ public class ShopApplicationTest {
     // ----------------------------  Check DB  ---------------------------------------
 
     @Test
-    void zz1_checkDbOnSuccessfulDebitBuyByApprovedCard() {
+    void z_checkStatusOnDebitBuyByApprovedCard() {
+        DataHelper.deleteData();
+        new DebitBuy().buyByApprovedCardNoExpect();
+        PaymentEntity payment = DataHelper.getPayment();
+        assertTrue(payment.isValid());
+        assertEquals(payment.getStatus(), Status.APPROVED);
+    }
+
+    @Test
+    void z_checkStatusOnDebitBuyByDeclinedCard() {
+        DataHelper.deleteData();
+        new DebitBuy().buyByDeclinedCardNoExpect();
+        PaymentEntity payment = DataHelper.getPayment();
+        assertTrue(payment.isValid());
+        assertEquals(payment.getStatus(), Status.DECLINED);
+    }
+
+    @Test
+    void z_checkAmountOnDebitBuyByApprovedCard() {
+        DataHelper.deleteData();
+        new DebitBuy().buyByApprovedCard();
+        PaymentEntity payment = DataHelper.getPayment();
+        assertEquals(payment.getAmount(), DataHelper.getTripPrice());
+    }
+
+    @Test
+    void z_checkForeignKeyOnDebitBuy() {
+        DataHelper.deleteData();
         new DebitBuy().buyByApprovedCard();
         PaymentEntity payment = DataHelper.getPayment();
         OrderEntity order = DataHelper.getOrder();
-        assertTrue(payment.isValid());
         assertTrue(order.isValid());
-        assertEquals(payment.getStatus(), Status.APPROVED);
-        assertEquals(payment.getAmount(), DataHelper.getTripPrice());
         assertEquals(payment.getId(), order.getPaymentId());
     }
 
     @Test
-    void zz2_checkDbOnSuccessfulCreditBuyByApprovedCard() {
+    // TODO: 09.09.21 разобрать на составляющие
+    void z_checkDbOnSuccessfulCreditBuyByApprovedCard() {
+        DataHelper.deleteData();
         new CreditBuy().buyByApprovedCard();
         CreditRequestEntity credit = DataHelper.getCreditRequest();
         OrderEntity order = DataHelper.getOrder();
@@ -135,32 +160,21 @@ public class ShopApplicationTest {
     }
 
     @Test
-    void zz3_checkTransactionUse() {
-        DataHelper.dropTableOrder();
+    void zz1_checkUseTransactionOnCreditBuy() {
+        DataHelper.truncateCreditRequest();
+        DataHelper.dropOrder();
+        new CreditBuy().buyByApprovedCard();
+        CreditRequestEntity credit = DataHelper.getCreditRequest();
+        assertNull(credit);
+    }
+
+    @Test
+    void zz2_checkUseTransactionOnDebitBuy() {
+        DataHelper.truncatePayment();
+        DataHelper.dropOrder();
         new DebitBuy().buyByApprovedCard();
         PaymentEntity payment = DataHelper.getPayment();
         assertNull(payment);
-    }
-
-
-    @Test
-    //@RepeatedTest(15)
-    void test() {
-        //DataHelper.deleteData();
-        //String orderId = DataHelper.getOrderId();
-        //System.out.println(orderId);
-        //OrderEntity oe = DataHelper.getOrderById(orderId);
-        //System.out.println(oe);
-        //PaymentEntity pe = DataHelper.getPaymentById("0b4ef46f-0d2d-4adc-827b-17c01efcc04a");
-        //System.out.println(pe);
-        //CreditRequestEntity cre = DataHelper.getCreditRequestById("5861f697-3fa6-46e0-95f9-b3d404445a56");
-        //System.out.println(cre);
-        //System.out.println(DataHelper.generateYear());
-        //System.out.println(DataHelper.generateMonth());
-        //System.out.println(DataHelper.generateName());
-        //System.out.println(DataHelper.generateCIV());
-        //System.out.println(DataHelper.getInvalidYear());
-        //System.out.println(EnumSet.allOf(Status.class).contains(Status.APPROVED));
     }
 
 }

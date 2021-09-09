@@ -2,6 +2,7 @@ package ru.netology;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import lombok.SneakyThrows;
 import ru.netology.data.DataHelper;
 
 import java.time.Duration;
@@ -26,6 +27,8 @@ public class AppPage {
     private SelenideElement subErr = $(".input__sub");
     private ElementsCollection subErrList = $$(".input__sub");
 
+    int BANK_RESPONSE_WAIT = 15;
+
     void debitBuy() {
         btnDebitBuy.click();
     }
@@ -48,7 +51,7 @@ public class AppPage {
 
     void expectNoticeCardInvalidPeriod() {
         btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(15))
+        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
                 .shouldHave(text("Неверно указан срок действия карты"));
     }
 
@@ -75,7 +78,7 @@ public class AppPage {
 
     void expectNoticeCardExpired() {
         btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(15))
+        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
                 .shouldHave(text("Истёк срок действия карты"));
     }
 
@@ -87,7 +90,7 @@ public class AppPage {
 
     void expectNoticeFieldRequired() {
         btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(15))
+        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
                 .shouldHave(text("Поле обязательно для заполнения"));
     }
 
@@ -100,7 +103,7 @@ public class AppPage {
 
     void expectNoticeInvalidFormat() {
         btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(15))
+        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
                 .shouldHave(text("Неверный формат"));
     }
 
@@ -114,15 +117,20 @@ public class AppPage {
     void expectAccept() {
         fillOtherCardFields();
         btnContinue.click();
-        noticeAccepted.shouldBe(appear, Duration.ofSeconds(10))
+        noticeAccepted.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
                 .shouldHave(text("Операция одобрена Банком"));
     }
 
     void expectReject() {
         fillOtherCardFields();
         btnContinue.click();
-        noticeRejected.shouldBe(appear, Duration.ofSeconds(10))
+        noticeRejected.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
                 .shouldHave(text("Банк отказал в проведении операции"));
     }
 
+    @SneakyThrows
+    public void buy() {
+        btnContinue.click();
+        Thread.sleep(BANK_RESPONSE_WAIT * 1_000);
+    }
 }

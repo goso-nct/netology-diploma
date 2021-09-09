@@ -14,13 +14,27 @@ public class DebitBuy {
         appPage.expectAccept();
     };
 
-    void debitBuyByDeclinedCard() {
+    void buyByApprovedCardNoExpect(){
+        appPage.debitBuy();
+        appPage.useApprovedCard();
+        appPage.fillOtherCardFields();
+        appPage.buy();
+    };
+
+    void buyByDeclinedCard() {
         appPage.debitBuy();
         appPage.useDeclinedCard();
         appPage.expectReject();
     }
 
-    void debitBuyByInvalidCard() {
+    void buyByDeclinedCardNoExpect(){
+        appPage.debitBuy();
+        appPage.useDeclinedCard();
+        appPage.fillOtherCardFields();
+        appPage.buy();
+    };
+
+    void buyByInvalidCard() {
         appPage.debitBuy();
         appPage.useInvalidCard();
         appPage.expectReject();
@@ -60,6 +74,5 @@ public class DebitBuy {
         appPage.setInvalidCvc();
         appPage.expectNoticeInvalidFormat();
     }
-
 
 }

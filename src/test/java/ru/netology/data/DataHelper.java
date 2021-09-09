@@ -61,15 +61,6 @@ public class DataHelper {
     public static int getTripPrice() { return 4500000; }
 
     @SneakyThrows
-    public static void deleteData() {
-        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
-        var dataStmt = conn.createStatement();
-        dataStmt.execute("TRUNCATE payment_entity");
-        dataStmt.execute("TRUNCATE credit_request_entity");
-        dataStmt.execute("TRUNCATE order_entity");
-    }
-
-    @SneakyThrows
     public static String getOrderId() {
         String id = null;
         String sql = "SELECT id FROM order_entity";
@@ -189,12 +180,36 @@ public class DataHelper {
     }
 
     @SneakyThrows
-    public static void dropTableOrder() {
-        String sql = "DROP TABLE order_entity";
+    public static void deleteData() {
         var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
         var dataStmt = conn.createStatement();
-        dataStmt.execute(sql);
+        dataStmt.execute("TRUNCATE payment_entity");
+        dataStmt.execute("TRUNCATE credit_request_entity");
+        dataStmt.execute("TRUNCATE order_entity");
     }
+
+    @SneakyThrows
+    public static void dropOrder() {
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.createStatement();
+        dataStmt.execute("DROP TABLE IF EXISTS order_entity");
+    }
+
+    @SneakyThrows
+    public static void truncatePayment() {
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.createStatement();
+        dataStmt.execute("TRUNCATE payment_entity");
+    }
+
+    @SneakyThrows
+    public static void truncateCreditRequest() {
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.createStatement();
+        dataStmt.execute("TRUNCATE credit_request_entity");
+    }
+
+
 }
 
 
