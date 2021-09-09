@@ -3,11 +3,18 @@ package ru.netology;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.junit.jupiter.api.*;
+import ru.netology.data.DataHelper;
+import ru.netology.data.Status;
+import ru.netology.data.entity.CreditRequestEntity;
+import ru.netology.data.entity.OrderEntity;
+import ru.netology.data.entity.PaymentEntity;
 
 import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.Selenide.open;
+import static org.junit.jupiter.api.Assertions.*;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+@TestMethodOrder(MethodOrderer.MethodName.class)
 public class ShopApplicationTest {
 
     static String appUrl;
@@ -25,7 +32,7 @@ public class ShopApplicationTest {
 
     @BeforeEach
     public void setUpEach() {
-        //DataHelper.deleteData();
+        DataHelper.deleteData();
         appPage = new AppPage();
         open(appUrl);
     }
@@ -42,7 +49,6 @@ public class ShopApplicationTest {
 
 
     // ----------------------------  DEBIT  ---------------------------------------
-
 
     @Test
     void shouldBeSuccessfulDebitBuyByApprovedCard() {
@@ -87,7 +93,6 @@ public class ShopApplicationTest {
 
     // ----------------------------  CREDIT  ---------------------------------------
 
-
     @Test
     void shouldBeSuccessfulCreditBuyByApprovedCard() {
         new CreditBuy().buyByApprovedCard();
@@ -102,6 +107,41 @@ public class ShopApplicationTest {
     void shouldBeFailureCreditBuyByInvalidCard() {
         new CreditBuy().buyByInvalidCard();
     }
+
+
+    // ----------------------------  Check DB  ---------------------------------------
+
+    @Test
+    void zz1_checkDbOnSuccessfulDebitBuyByApprovedCard() {
+        new DebitBuy().buyByApprovedCard();
+        PaymentEntity payment = DataHelper.getPayment();
+        OrderEntity order = DataHelper.getOrder();
+        assertTrue(payment.isValid());
+        assertTrue(order.isValid());
+        assertEquals(payment.getStatus(), Status.APPROVED);
+        assertEquals(payment.getAmount(), DataHelper.getTripPrice());
+        assertEquals(payment.getId(), order.getPaymentId());
+    }
+
+    @Test
+    void zz2_checkDbOnSuccessfulCreditBuyByApprovedCard() {
+        new CreditBuy().buyByApprovedCard();
+        CreditRequestEntity credit = DataHelper.getCreditRequest();
+        OrderEntity order = DataHelper.getOrder();
+        assertTrue(credit.isValid());
+        assertTrue(order.isValid());
+        assertEquals(credit.getStatus(), Status.APPROVED);
+        assertEquals(credit.getId(), order.getCreditId());
+    }
+
+    @Test
+    void zz3_checkTransactionUse() {
+        DataHelper.dropTableOrder();
+        new DebitBuy().buyByApprovedCard();
+        PaymentEntity payment = DataHelper.getPayment();
+        assertNull(payment);
+    }
+
 
     @Test
     //@RepeatedTest(15)
@@ -120,6 +160,7 @@ public class ShopApplicationTest {
         //System.out.println(DataHelper.generateName());
         //System.out.println(DataHelper.generateCIV());
         //System.out.println(DataHelper.getInvalidYear());
+        //System.out.println(EnumSet.allOf(Status.class).contains(Status.APPROVED));
     }
 
 }

@@ -58,6 +58,7 @@ public class DataHelper {
         return Year.now().minusYears(11).toString().substring(2);
     }
     public static String getInvalidCvc() { return "1"; }
+    public static int getTripPrice() { return 4500000; }
 
     @SneakyThrows
     public static void deleteData() {
@@ -125,7 +126,7 @@ public class DataHelper {
         if (rs != null && rs.next()) {
             obj = new PaymentEntity();
             obj.setId(rs.getString(1));
-            obj.setAmount(rs.getInt(3));
+            obj.setAmount(rs.getInt(2));
             obj.setCreated(rs.getObject(3, LocalDateTime.class));
             obj.setStatus(Status.valueOf(rs.getString(4)));
             obj.setTransactionId(rs.getString(5));
@@ -187,6 +188,13 @@ public class DataHelper {
         return obj;
     }
 
+    @SneakyThrows
+    public static void dropTableOrder() {
+        String sql = "DROP TABLE order_entity";
+        var conn = DriverManager.getConnection(dbUrl, dbUser, dbPass);
+        var dataStmt = conn.createStatement();
+        dataStmt.execute(sql);
+    }
 }
 
 
