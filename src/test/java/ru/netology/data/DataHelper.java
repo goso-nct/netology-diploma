@@ -2,6 +2,7 @@ package ru.netology.data;
 
 import com.github.javafaker.Faker;
 import lombok.SneakyThrows;
+import ru.netology.data.entity.CommonEntity;
 import ru.netology.data.entity.CreditRequestEntity;
 import ru.netology.data.entity.OrderEntity;
 import ru.netology.data.entity.PaymentEntity;
@@ -15,18 +16,23 @@ public class DataHelper {
 
     static Faker faker = new Faker(new Locale("en"));
 
+    public enum BuyType {CREDIT, DEBIT}
+
     private static String dbUrl;
     private static String dbUser;
     private static String dbPass;
+    public static String appUrl;
 
     static {
         dbUrl  = System.getenv("DB_URL");
         dbUser = System.getenv("DB_USER");
         dbPass = System.getenv("DB_PASS");
+        appUrl = System.getenv("APP_URL");
 
         dbUrl  = (dbUrl  == null) ? "jdbc:mysql://localhost:3306/app" : dbUrl;
         dbUser = (dbUser == null) ? "app" : dbUser;
         dbPass = (dbPass == null) ? "pass" : dbPass;
+        appUrl = (appUrl == null) ? "http://localhost:8080" : appUrl;
     }
 
     private DataHelper() {}
@@ -59,6 +65,15 @@ public class DataHelper {
     }
     public static String getInvalidCvc() { return "1"; }
     public static int getTripPrice() { return 4500000; }
+
+    public static CommonEntity getEntityWithStatus(BuyType buyType) {
+        CommonEntity entity = null;
+        if (buyType == BuyType.CREDIT)
+            entity = DataHelper.getCreditRequest();
+        else if (buyType == BuyType.DEBIT)
+            entity = DataHelper.getPayment();
+        return entity;
+    }
 
     @SneakyThrows
     public static String getOrderId() {

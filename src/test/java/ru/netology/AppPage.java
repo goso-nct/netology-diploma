@@ -1,6 +1,5 @@
 package ru.netology;
 
-import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import lombok.SneakyThrows;
 import ru.netology.data.DataHelper;
@@ -14,27 +13,37 @@ import static com.codeborne.selenide.Selenide.$$;
 
 public class AppPage {
 
-    private SelenideElement btnDebitBuy = $$("[class=button__content]").get(0);
-    private SelenideElement btnCreditBuy = $$("[class=button__content]").get(1);
-    private SelenideElement btnContinue = $$("[class=button__content]").get(2);
-    private SelenideElement card = $$("[class=input__control]").get(0);
-    private SelenideElement month = $$("[class=input__control]").get(1);
-    private SelenideElement year = $$("[class=input__control]").get(2);
-    private SelenideElement holder = $$("[class=input__control]").get(3);
-    private SelenideElement cvc = $$("[class=input__control]").get(4);
-    private SelenideElement noticeAccepted = $(".notification_status_ok");
-    private SelenideElement noticeRejected = $(".notification_status_error");
-    private SelenideElement subErr = $(".input__sub");
-    private ElementsCollection subErrList = $$(".input__sub");
+    private final SelenideElement headerBuyType = $$("h3.heading").get(1);
+    private final SelenideElement btnDebitBuy = $$("[class=button__content]").get(0);
+    private final SelenideElement btnCreditBuy = $$("[class=button__content]").get(1);
+    private final SelenideElement btnContinue = $$("[class=button__content]").get(2);
+    private final SelenideElement card = $$("[class=input__control]").get(0);
+    private final SelenideElement month = $$("[class=input__control]").get(1);
+    private final SelenideElement year = $$("[class=input__control]").get(2);
+    private final SelenideElement holder = $$("[class=input__control]").get(3);
+    private final SelenideElement cvc = $$("[class=input__control]").get(4);
+    private final SelenideElement noticeAccepted = $(".notification_status_ok");
+    private final SelenideElement noticeRejected = $(".notification_status_error");
+    private final SelenideElement subErr = $(".input__sub");
 
     int BANK_RESPONSE_WAIT = 15;
 
+    void isDebit() {
+        headerBuyType.shouldHave(text("Оплата по карте"));
+    }
+
+    void isCredit() {
+        headerBuyType.shouldHave(text("Кредит по данным карты"));
+    }
+
     void debitBuy() {
         btnDebitBuy.click();
+        isDebit();
     }
 
     void creditBuy() {
         btnCreditBuy.click();
+        isCredit();
     }
 
     void useApprovedCard() {
@@ -131,6 +140,6 @@ public class AppPage {
     @SneakyThrows
     public void buy() {
         btnContinue.click();
-        Thread.sleep(BANK_RESPONSE_WAIT * 1_000);
+        Thread.sleep(BANK_RESPONSE_WAIT * 1_000L);
     }
 }

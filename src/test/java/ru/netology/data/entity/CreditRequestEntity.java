@@ -1,23 +1,18 @@
 package ru.netology.data.entity;
 
 import lombok.Data;
-import ru.netology.data.Status;
-import java.time.LocalDateTime;
-import java.util.EnumSet;
+import lombok.EqualsAndHashCode;
 
 @Data
-public class CreditRequestEntity implements IValidation {
+@EqualsAndHashCode(callSuper=true)
+public class CreditRequestEntity extends CommonEntity {
 
-    private String id;
     private String bankId;
-    private Status status;
-    private LocalDateTime created;
 
     @Override
     public boolean isValid() {
-        return (id != null) && (bankId != null)
-                && EnumSet.allOf(Status.class).contains(status)
-                && (created != null)
+        return super.isValid()
+                && (bankId != null)
                 ;
     }
 }
