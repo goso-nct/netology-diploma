@@ -4,15 +4,10 @@ import ru.netology.data.DataHelper.*;
 
 public class FrontendHelper {
 
-    BuyType buyType;
     AppPage appPage;
 
     public FrontendHelper(BuyType buyType) {
-        this.buyType = buyType;
         this.appPage = new AppPage();
-    }
-
-    void chooseBuyType() {
         if (buyType == BuyType.CREDIT)
             appPage.creditBuy();
         else if (buyType == BuyType.DEBIT)
@@ -20,77 +15,88 @@ public class FrontendHelper {
     }
 
     void buyOnApprovedCard(){
-        chooseBuyType();
         appPage.useApprovedCard();
         appPage.expectAccept();
     };
 
     void buyOnDeclinedCard() {
-        chooseBuyType();
         appPage.useDeclinedCard();
         appPage.expectReject();
     }
 
-    void buyOnInvalidCard() {
-        chooseBuyType();
+    void buyOnNonExistentCard() {
         appPage.useInvalidCard();
         appPage.expectReject();
+    }
+
+    public void checkNoticeEmptyFields() {
+        appPage.buy();
+        appPage.checkSubBlankFields();
+    }
+
+    public void noticeIfCardInvalid() {
+        appPage.setInvalidCard();
+        appPage.expectSubInvalidFormatInCard();
     }
 
     void noticeIfMonthInvalid() {
-        chooseBuyType();
         appPage.useApprovedCard();
         appPage.setInvalidMonth();
-        appPage.expectNoticeCardInvalidPeriod();
+        appPage.expectSubInvalidPeriodInMonth();
     }
 
     void noticeIfYearInvalidInFuture() {
-        chooseBuyType();
         appPage.useApprovedCard();
         appPage.setInvalidYearInFuture();
-        appPage.expectNoticeCardInvalidPeriod();
+        appPage.expectSubInvalidPeriodInYear();
     }
 
     void noticeIfYearInvalidInPast() {
-        chooseBuyType();
         appPage.useApprovedCard();
         appPage.setInvalidYearInPast();
-        appPage.expectNoticeCardExpired();
+        appPage.expectSubCardExpiredInYear();
     }
 
     void noticeIfHolderIsEmpty() {
-        chooseBuyType();
         appPage.useApprovedCard();
-        appPage.noSetHolder();
-        appPage.expectNoticeFieldRequired();
+        appPage.setNoHolder();
+        appPage.expectSubRequiredInHolder();
+    }
+
+    void noticeIfHolderIsInvalid() {
+        appPage.useApprovedCard();
+        appPage.setInvalidHolder();
+        appPage.expectSubInvalidFormatInHolder();
+    }
+
+    public void noticeIfHolderIsLong() {
+        appPage.useApprovedCard();
+        appPage.setLongHolder();
+        appPage.expectSubInvalidFormatInHolder();
+    }
+
+    public void noticeIfHolderIsShort() {
+        appPage.useApprovedCard();
+        appPage.setShortHolder();
+        appPage.expectSubInvalidFormatInHolder();
     }
 
     void noticeIfCvcIsInvalid() {
-        chooseBuyType();
         appPage.useApprovedCard();
         appPage.setInvalidCvc();
-        appPage.expectNoticeInvalidFormat();
+        appPage.expectSubInvalidFormatInCvc();
     }
 
     void buyOnApprovedCardNoExpect(){
-        chooseBuyType();
         appPage.useApprovedCard();
-        appPage.fillOtherCardFields();
-        appPage.buy();
+        appPage.setValidFieldsExceptCardNumber();
+        appPage.buyAndWait();
     };
 
     void buyOnDeclinedCardNoExpect(){
-        chooseBuyType();
         appPage.useDeclinedCard();
-        appPage.fillOtherCardFields();
-        appPage.buy();
-    };
-
-    void buyOnInvalidCardNoExpect(){
-        chooseBuyType();
-        appPage.useInvalidCard();
-        appPage.fillOtherCardFields();
-        appPage.buy();
+        appPage.setValidFieldsExceptCardNumber();
+        appPage.buyAndWait();
     };
 
 }

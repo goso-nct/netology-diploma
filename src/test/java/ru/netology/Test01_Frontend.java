@@ -7,12 +7,11 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import ru.netology.data.DataHelper.BuyType;
 
-import static com.codeborne.selenide.Selenide.closeWebDriver;
-import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.*;
 import static ru.netology.data.DataHelper.appUrl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class FirstFrontendTest {
+public class Test01_Frontend {
 
     @BeforeAll
     void setUpAll() {
@@ -24,36 +23,41 @@ public class FirstFrontendTest {
         open(appUrl);
     }
 
-    @AfterEach
-    void tearDownEach() {
-        closeWebDriver();
-    }
-
     @AfterAll
     void tearDownAll() {
         SelenideLogger.removeListener("allure");
     }
 
     @EnumSource(BuyType.class)
-    @ParameterizedTest(name = "shouldBeSuccessfulBuyOnApproved{0}Card")
+    @ParameterizedTest(name = "shouldBeSuccessfulBuyOnApproved {0} Card")
     void shouldBeSuccessfulBuyOnApprovedCard(BuyType buyType) {
         new FrontendHelper(buyType).buyOnApprovedCard();
     }
 
     @EnumSource(BuyType.class)
-    @ParameterizedTest(name = "shouldBeFailureBuyOnDeclined{0}Card")
+    @ParameterizedTest(name = "shouldBeFailureBuyOnDeclined {0} Card")
     void shouldBeFailureBuyOnDeclinedCard(BuyType buyType) {
         new FrontendHelper(buyType).buyOnDeclinedCard();
     }
 
     @EnumSource(BuyType.class)
-    @ParameterizedTest(name ="shouldBeFailureBuyOnInvalid{0}Card")
-    void shouldBeFailureBuyOnInvalidCard(BuyType buyType) {
-        new FrontendHelper(buyType).buyOnInvalidCard();
+    @ParameterizedTest(name = "shouldBeFailureBuyOnNonExistent {0} Card")
+    void shouldBeFailureBuyOnNonExistentCard(BuyType buyType) {
+        new FrontendHelper(buyType).buyOnNonExistentCard();
     }
 
     @Test
-    void shouldBeNoticeIfMonthInvalid() {
+    void checkNoticeEmptyFields() {
+        new FrontendHelper(BuyType.DEBIT).checkNoticeEmptyFields();
+    }
+
+    @Test
+    void shouldBeNoticeIfCardIsInvalid() {
+        new FrontendHelper(BuyType.DEBIT).noticeIfCardInvalid();
+    }
+
+    @Test
+    void shouldBeNoticeIfMonthIsInvalid() {
         new FrontendHelper(BuyType.DEBIT).noticeIfMonthInvalid();
     }
 
@@ -70,6 +74,21 @@ public class FirstFrontendTest {
     @Test
     void shouldBeNoticeIfHolderIsEmpty() {
         new FrontendHelper(BuyType.DEBIT).noticeIfHolderIsEmpty();
+    }
+
+    @Test
+    void shouldBeNoticeIfHolderIsInvalid() {
+        new FrontendHelper(BuyType.DEBIT).noticeIfHolderIsInvalid();
+    }
+
+    @Test
+    void shouldBeNoticeIfHolderIsLong() {
+        new FrontendHelper(BuyType.DEBIT).noticeIfHolderIsLong();
+    }
+
+    @Test
+    void shouldBeNoticeIfHolderIsShort() {
+        new FrontendHelper(BuyType.DEBIT).noticeIfHolderIsShort();
     }
 
     @Test

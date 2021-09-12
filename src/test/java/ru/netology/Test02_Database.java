@@ -21,7 +21,7 @@ import static ru.netology.data.DataHelper.appUrl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @TestMethodOrder(MethodOrderer.MethodName.class)
-public class SecondDatabaseTest {
+public class Test02_Database {
 
     @BeforeAll
     void setUpAll() {
@@ -44,7 +44,7 @@ public class SecondDatabaseTest {
     }
 
     @EnumSource(BuyType.class)
-    @ParameterizedTest(name = "checkStatusBuyOnApproved{0}Card")
+    @ParameterizedTest(name = "checkStatusBuyOnApproved {0} Card")
     void checkStatusBuyOnApprovedCard(BuyType buyType) {
         DataHelper.deleteData();
         new FrontendHelper(buyType).buyOnApprovedCardNoExpect();
@@ -54,7 +54,7 @@ public class SecondDatabaseTest {
     }
 
     @EnumSource(BuyType.class)
-    @ParameterizedTest(name = "checkStatusBuyOnDeclined{0}Card")
+    @ParameterizedTest(name = "checkStatusBuyOnDeclined {0} Card")
     void checkStatusBuyOnDeclinedCard(BuyType buyType) {
         DataHelper.deleteData();
         new FrontendHelper(buyType).buyOnDeclinedCardNoExpect();

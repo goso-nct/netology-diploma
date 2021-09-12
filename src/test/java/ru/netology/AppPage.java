@@ -6,140 +6,192 @@ import ru.netology.data.DataHelper;
 
 import java.time.Duration;
 
+import static org.openqa.selenium.Keys.CONTROL;
+import static org.openqa.selenium.Keys.DELETE;
+
 import static com.codeborne.selenide.Condition.appear;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
 
 public class AppPage {
 
     private final SelenideElement headerBuyType = $$("h3.heading").get(1);
-    private final SelenideElement btnDebitBuy = $$("[class=button__content]").get(0);
-    private final SelenideElement btnCreditBuy = $$("[class=button__content]").get(1);
-    private final SelenideElement btnContinue = $$("[class=button__content]").get(2);
-    private final SelenideElement card = $$("[class=input__control]").get(0);
-    private final SelenideElement month = $$("[class=input__control]").get(1);
-    private final SelenideElement year = $$("[class=input__control]").get(2);
-    private final SelenideElement holder = $$("[class=input__control]").get(3);
-    private final SelenideElement cvc = $$("[class=input__control]").get(4);
+    private final SelenideElement btnDebitBuy = $(byText("Купить"));
+    private final SelenideElement btnCreditBuy = $(byText("Купить в кредит"));
+    private final SelenideElement btnContinue = $(byText("Продолжить"));
+    private final SelenideElement txtCard = $(byText("Номер карты")).parent().$(".input__control");
+    private final SelenideElement subCard = $(byText("Номер карты")).parent().$(".input__sub");
+    private final SelenideElement txtMonth = $(byText("Месяц")).parent().$(".input__control");
+    private final SelenideElement subMonth = $(byText("Месяц")).parent().$(".input__sub");
+    private final SelenideElement txtYear = $(byText("Год")).parent().$(".input__control");
+    private final SelenideElement subYear = $(byText("Год")).parent().$(".input__sub");
+    private final SelenideElement txtHolder = $(byText("Владелец")).parent().$(".input__control");
+    private final SelenideElement subHolder = $(byText("Владелец")).parent().$(".input__sub");
+    private final SelenideElement txtCvc = $(byText("CVC/CVV")).parent().$(".input__control");
+    private final SelenideElement subCvc = $(byText("CVC/CVV")).parent().$(".input__sub");
     private final SelenideElement noticeAccepted = $(".notification_status_ok");
     private final SelenideElement noticeRejected = $(".notification_status_error");
-    private final SelenideElement subErr = $(".input__sub");
 
     int BANK_RESPONSE_WAIT = 15;
 
-    void isDebit() {
-        headerBuyType.shouldHave(text("Оплата по карте"));
+    String STR_REQUIRED_FIELD = "Поле обязательно для заполнения";
+    String STR_INCORRECT_PERIOD = "Неверно указан срок действия карты";
+    String STR_INVALID_FORMAT = "Неверный формат";
+    String STR_CARD_EXPIRED = "Истёк срок действия карты";
+    String STR_DEBIT = "Оплата по карте";
+    String STR_CREDIT = "Кредит по данным карты";
+    String STR_APPROVED = "Операция одобрена Банком";
+    String STR_REFUSED = "Банк отказал в проведении операции";
+
+    void clearField(SelenideElement element) {
+        element.sendKeys(CONTROL + "A", DELETE);
     }
 
-    void isCredit() {
-        headerBuyType.shouldHave(text("Кредит по данным карты"));
+    void setValidFieldsExceptCardNumber() {
+        txtMonth.setValue(DataHelper.generateMonth());
+        txtYear.setValue(DataHelper.generateYear());
+        txtHolder.setValue(DataHelper.generateName());
+        txtCvc.setValue(DataHelper.generateCvc());
+    }
+
+    void setValidFieldsExceptCardNumberAndClear(SelenideElement element) {
+        txtMonth.setValue(DataHelper.generateMonth());
+        txtYear.setValue(DataHelper.generateYear());
+        txtHolder.setValue(DataHelper.generateName());
+        txtCvc.setValue(DataHelper.generateCvc());
+        clearField(element);
+    }
+
+    void setInvalidCard() {
+        setValidFieldsExceptCardNumberAndClear(txtCard);
+        txtCard.setValue(DataHelper.getInvalidCard());
+    }
+
+    void setInvalidMonth() {
+        setValidFieldsExceptCardNumberAndClear(txtMonth);
+        txtMonth.setValue(DataHelper.getInvalidMonth());
+    }
+
+    void setInvalidYearInFuture() {
+        setValidFieldsExceptCardNumberAndClear(txtYear);
+        txtYear.setValue(DataHelper.getInvalidYearInFuture());
+    }
+
+    void setInvalidYearInPast() {
+        setValidFieldsExceptCardNumberAndClear(txtYear);
+        txtYear.setValue(DataHelper.getInvalidYearInPast());
+    }
+
+    void setNoHolder() {
+        setValidFieldsExceptCardNumberAndClear(txtHolder);
+    }
+
+    void setInvalidHolder() {
+        setValidFieldsExceptCardNumberAndClear(txtHolder);
+        txtHolder.setValue(DataHelper.getInvalidHolder());
+    }
+
+    void setLongHolder() {
+        setValidFieldsExceptCardNumberAndClear(txtHolder);
+        txtHolder.setValue(DataHelper.getLongHolder());
+    }
+
+    void setShortHolder() {
+        setValidFieldsExceptCardNumberAndClear(txtHolder);
+        txtHolder.setValue(DataHelper.getShortHolder());
+    }
+
+    void setInvalidCvc() {
+        setValidFieldsExceptCardNumberAndClear(txtCvc);
+        txtCvc.setValue(DataHelper.getInvalidCvc());
     }
 
     void debitBuy() {
         btnDebitBuy.click();
-        isDebit();
+        headerBuyType.shouldHave(text(STR_DEBIT));
     }
 
     void creditBuy() {
         btnCreditBuy.click();
-        isCredit();
+        headerBuyType.shouldHave(text(STR_CREDIT));
     }
 
     void useApprovedCard() {
-        card.setValue(DataHelper.getApprovedCard());
+        txtCard.setValue(DataHelper.getApprovedCard());
     }
 
     void useDeclinedCard() {
-        card.setValue(DataHelper.getDeclinedCard());
+        txtCard.setValue(DataHelper.getDeclinedCard());
     }
 
     void useInvalidCard() {
-        card.setValue(DataHelper.getInvalidCard());
+        txtCard.setValue(DataHelper.getNonExistentCard());
     }
 
-    void expectNoticeCardInvalidPeriod() {
+    void expectSubInField(String text, SelenideElement element) {
         btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
-                .shouldHave(text("Неверно указан срок действия карты"));
+        element.shouldBe(appear).shouldHave(text(text));
     }
 
-    void setInvalidMonth() {
-        month.setValue(DataHelper.getInvalidMonth());
-        year.setValue(DataHelper.generateYear());
-        holder.setValue(DataHelper.generateName());
-        cvc.setValue(DataHelper.generateCvc());
+    void expectSubInvalidFormatInCard() {
+        expectSubInField(STR_INVALID_FORMAT, subCard);
     }
 
-    void setInvalidYearInFuture() {
-        month.setValue(DataHelper.generateMonth());
-        year.setValue(DataHelper.getInvalidYearInFuture());
-        holder.setValue(DataHelper.generateName());
-        cvc.setValue(DataHelper.generateCvc());
+    void expectSubInvalidPeriodInMonth() {
+        expectSubInField(STR_INCORRECT_PERIOD, subMonth);
     }
 
-    void setInvalidYearInPast() {
-        month.setValue(DataHelper.generateMonth());
-        year.setValue(DataHelper.getInvalidYearInPast());
-        holder.setValue(DataHelper.generateName());
-        cvc.setValue(DataHelper.generateCvc());
+    void expectSubInvalidPeriodInYear() {
+        expectSubInField(STR_INCORRECT_PERIOD, subYear);
     }
 
-    void expectNoticeCardExpired() {
-        btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
-                .shouldHave(text("Истёк срок действия карты"));
+    void expectSubCardExpiredInYear() {
+        expectSubInField(STR_CARD_EXPIRED, subYear);
     }
 
-    void noSetHolder() {
-        month.setValue(DataHelper.generateMonth());
-        year.setValue(DataHelper.generateYear());
-        cvc.setValue(DataHelper.generateCvc());
+    void expectSubRequiredInHolder() {
+        expectSubInField(STR_REQUIRED_FIELD, subHolder);
     }
 
-    void expectNoticeFieldRequired() {
-        btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
-                .shouldHave(text("Поле обязательно для заполнения"));
+    void expectSubInvalidFormatInHolder() {
+        expectSubInField(STR_INVALID_FORMAT, subHolder);
     }
 
-    void setInvalidCvc() {
-        month.setValue(DataHelper.generateMonth());
-        year.setValue(DataHelper.generateYear());
-        holder.setValue(DataHelper.generateName());
-        cvc.setValue(DataHelper.getInvalidCvc());
-    }
-
-    void expectNoticeInvalidFormat() {
-        btnContinue.click();
-        subErr.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
-                .shouldHave(text("Неверный формат"));
-    }
-
-    void fillOtherCardFields() {
-        month.setValue(DataHelper.generateMonth());
-        year.setValue(DataHelper.generateYear());
-        holder.setValue(DataHelper.generateName());
-        cvc.setValue(DataHelper.generateCvc());
+    void expectSubInvalidFormatInCvc() {
+        expectSubInField(STR_INVALID_FORMAT, subCvc);
     }
 
     void expectAccept() {
-        fillOtherCardFields();
+        setValidFieldsExceptCardNumber();
         btnContinue.click();
         noticeAccepted.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
-                .shouldHave(text("Операция одобрена Банком"));
+                .shouldHave(text(STR_APPROVED));
     }
 
     void expectReject() {
-        fillOtherCardFields();
+        setValidFieldsExceptCardNumber();
         btnContinue.click();
         noticeRejected.shouldBe(appear, Duration.ofSeconds(BANK_RESPONSE_WAIT))
-                .shouldHave(text("Банк отказал в проведении операции"));
+                .shouldHave(text(STR_REFUSED));
+    }
+
+    void buy() {
+        btnContinue.click();
     }
 
     @SneakyThrows
-    public void buy() {
+    void buyAndWait() {
         btnContinue.click();
         Thread.sleep(BANK_RESPONSE_WAIT * 1_000L);
+    }
+
+    void checkSubBlankFields() {
+        subCard.shouldHave(text(STR_REQUIRED_FIELD));
+        subMonth.shouldHave(text(STR_REQUIRED_FIELD));
+        subYear.shouldHave(text(STR_REQUIRED_FIELD));
+        subHolder.shouldHave(text(STR_REQUIRED_FIELD));
+        subCvc.shouldHave(text(STR_REQUIRED_FIELD));
     }
 }
