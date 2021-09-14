@@ -1,19 +1,18 @@
 package ru.netology;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
-import lombok.SneakyThrows;
 import ru.netology.data.DataHelper;
 
 import java.time.Duration;
-
-import static org.openqa.selenium.Keys.CONTROL;
-import static org.openqa.selenium.Keys.DELETE;
 
 import static com.codeborne.selenide.Condition.appear;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selectors.byText;
 import static com.codeborne.selenide.Selenide.$;
 import static com.codeborne.selenide.Selenide.$$;
+import static org.openqa.selenium.Keys.CONTROL;
+import static org.openqa.selenium.Keys.DELETE;
 
 public class AppPage {
 
@@ -34,7 +33,7 @@ public class AppPage {
     private final SelenideElement noticeAccepted = $(".notification_status_ok");
     private final SelenideElement noticeRejected = $(".notification_status_error");
 
-    int BANK_RESPONSE_WAIT = 15;
+    final int BANK_RESPONSE_WAIT = 15;
 
     String STR_REQUIRED_FIELD = "Поле обязательно для заполнения";
     String STR_INCORRECT_PERIOD = "Неверно указан срок действия карты";
@@ -181,10 +180,9 @@ public class AppPage {
         btnContinue.click();
     }
 
-    @SneakyThrows
     void buyAndWait() {
         btnContinue.click();
-        Thread.sleep(BANK_RESPONSE_WAIT * 1_000L);
+        Selenide.sleep(BANK_RESPONSE_WAIT * 1_000L);
     }
 
     void checkSubBlankFields() {
