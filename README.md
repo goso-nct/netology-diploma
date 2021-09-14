@@ -45,7 +45,7 @@ AQA-19
 
    `cd artifacts`
 
-   для тестирования с использованием БД MySql или БД PostgreSQL в файле application.properties свойство datasource должно указывать на соответствующий драйвер:
+   для тестирования с использованием БД MySql или БД PostgreSQL в файле application.properties свойство *spring.datasource.url* должно указывать на соответствующий драйвер:
 
    `spring.datasource.url=jdbc:mysql://localhost:3306/app`
 
@@ -67,23 +67,27 @@ AQA-19
 
    открыть терминал в рабочей директории, запустить 
 
-   `gradlew test -Dselenide.headless=true`
+   `./gradlew test -Dselenide.headless=true`
 
-   Примерное время работы тестов 3 мин
+   Примерное время работы тестов 3-4 мин
 
 5. Посмотреть отчёты в браузере
    
-   `gradlew allureServe`
+   `./gradlew allureServe`
 
 6. Завершение тестирования
 
-   В терминале с тестами/allure (п4,5) `<Ctrl>+C, gradlew --stop`, закрыть
+   В терминале с тестами/allure (п.4,5) `<Ctrl>+C, ./gradlew --stop`, закрыть
 
    В терминале с приложением (п.3) `<Ctrl>+C`, закрыть
 
-   В терминале с бакендом (п.2) `<Ctrl>+C, docker-compose down`, закрыть
+   В терминале с бакендом (п.1,2) 
 
+   `<Ctrl>+C`, дождаться остановки контейнеров
+
+   `docker-compose down`, закрыть
    
-
+   
+   
    
 
