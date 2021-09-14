@@ -1,8 +1,13 @@
 version: '3'
-
 services:
 
-  db:
+  gate:
+    build: ./artifacts/gate-simulator/
+    image: gate:diploma
+    ports:
+      - '9999:9999'
+
+  my:
     image: mysql:8.0
     command: --default-authentication-plugin=mysql_native_password
     restart: always
@@ -15,11 +20,23 @@ services:
       MYSQL_RANDOM_ROOT_PASSWORD: 'true'
     security_opt:
       - seccomp=unconfined
-
+        
+  pg:
+    image: postgres:12.8-alpine3.14
+    restart: always
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRES_DB=app
+      - POSTGRES_USER=app
+      - POSTGRES_PASSWORD=pass
+   
   adminer:
     image: adminer
     restart: always
     depends_on:
-      - db
+      - my
+      - pg
     ports:
       - '8000:8080'
+
