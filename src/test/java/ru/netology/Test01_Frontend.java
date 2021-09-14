@@ -7,7 +7,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 import ru.netology.data.DataHelper.BuyType;
 
-import static com.codeborne.selenide.Selenide.*;
+import static com.codeborne.selenide.Selenide.open;
 import static ru.netology.data.DataHelper.appUrl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -45,6 +45,9 @@ public class Test01_Frontend {
     void shouldBeFailureBuyOnNonExistentCard(BuyType buyType) {
         new FrontendHelper(buyType).buyOnNonExistentCard();
     }
+
+    //
+    // нотификацию достаточно проверить только на чём-то одном (DEBIT) ?
 
     @Test
     void checkNoticeEmptyFields() {

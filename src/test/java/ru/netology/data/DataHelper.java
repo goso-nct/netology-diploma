@@ -7,35 +7,45 @@ import ru.netology.data.entity.CreditRequestEntity;
 import ru.netology.data.entity.OrderEntity;
 import ru.netology.data.entity.PaymentEntity;
 
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.sql.DriverManager;
 import java.time.LocalDateTime;
 import java.time.Year;
 import java.util.Locale;
+import java.util.Properties;
 
 public class DataHelper {
 
     public enum BuyType {CREDIT, DEBIT}
-
-    public static String appUrl;
-
-    private static String dbUrl;
-    private static String dbUser;
-    private static String dbPass;
-
     private static final Faker faker = new Faker(new Locale("en"));
 
+    static String dbUrl;
+    static String dbUser;
+    static String dbPass;
+
+    // параметры берём из свойств тестируемого приложения
     static {
-        dbUrl  = System.getenv("DB_URL");
-        dbUrl  = (dbUrl  == null) ? "jdbc:mysql://localhost:3306/app" : dbUrl;
+        Properties props = new Properties();
+        try {
+            props.load(new FileInputStream("artifacts/application.properties"));
+            dbUrl = props.getProperty("spring.datasource.url");
+            dbUser = props.getProperty("spring.datasource.username");
+            dbPass = props.getProperty("spring.datasource.password");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
 
-        dbUser = System.getenv("DB_USER");
-        dbUser = (dbUser == null) ? "app" : dbUser;
+    public static String appUrl = "http://localhost:8080";
 
-        dbPass = System.getenv("DB_PASS");
-        dbPass = (dbPass == null) ? "pass" : dbPass;
-
-        appUrl = System.getenv("APP_URL");
-        appUrl = (appUrl == null) ? "http://localhost:8080" : appUrl;
+    // только для моей конфигурации стенда:
+    static String TEST_IP = System.getenv("TEST_IP");
+    static {
+        if (TEST_IP != null) {
+            dbUrl = dbUrl.replace("localhost", TEST_IP);
+            appUrl = appUrl.replace("localhost", TEST_IP);
+        }
     }
 
     private DataHelper() {}
@@ -181,7 +191,12 @@ public class DataHelper {
         dataStmt.execute("DROP TABLE IF EXISTS order_entity");
     }
 
+    public static String getParams() {
+        return "dbUrl=" + dbUrl + ", dbUser=" + dbUser + ", dbPass=" + dbPass + ", appUrl=" + appUrl;
+    }
+
 }
+
 
 
 

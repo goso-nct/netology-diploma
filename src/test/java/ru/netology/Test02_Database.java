@@ -13,10 +13,8 @@ import ru.netology.data.entity.CreditRequestEntity;
 import ru.netology.data.entity.OrderEntity;
 import ru.netology.data.entity.PaymentEntity;
 
-import static com.codeborne.selenide.Selenide.closeWebDriver;
 import static com.codeborne.selenide.Selenide.open;
 import static org.junit.jupiter.api.Assertions.*;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static ru.netology.data.DataHelper.appUrl;
 
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
@@ -31,11 +29,6 @@ public class Test02_Database {
     @BeforeEach
     public void setUpEach() {
         open(appUrl);
-    }
-
-    @AfterEach
-    void tearDownEach() {
-        closeWebDriver();
     }
 
     @AfterAll
@@ -109,6 +102,10 @@ public class Test02_Database {
         new FrontendHelper(BuyType.DEBIT).buyOnApprovedCard();
         PaymentEntity payment = DataHelper.getPayment();
         assertNull(payment);
+    }
+
+    void printParams() {
+        System.out.println(DataHelper.getParams());
     }
 
 }

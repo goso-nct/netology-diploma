@@ -1,6 +1,6 @@
 package ru.netology;
 
-import ru.netology.data.DataHelper.*;
+import ru.netology.data.DataHelper.BuyType;
 
 public class FrontendHelper {
 
