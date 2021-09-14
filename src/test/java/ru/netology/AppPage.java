@@ -52,14 +52,14 @@ public class AppPage {
     void setValidFieldsExceptCardNumber() {
         txtMonth.setValue(DataHelper.generateMonth());
         txtYear.setValue(DataHelper.generateYear());
-        txtHolder.setValue(DataHelper.generateName());
+        txtHolder.setValue(DataHelper.generateHolder());
         txtCvc.setValue(DataHelper.generateCvc());
     }
 
     void setValidFieldsExceptCardNumberAndClear(SelenideElement element) {
         txtMonth.setValue(DataHelper.generateMonth());
         txtYear.setValue(DataHelper.generateYear());
-        txtHolder.setValue(DataHelper.generateName());
+        txtHolder.setValue(DataHelper.generateHolder());
         txtCvc.setValue(DataHelper.generateCvc());
         clearField(element);
     }

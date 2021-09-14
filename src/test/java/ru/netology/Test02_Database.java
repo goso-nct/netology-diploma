@@ -76,6 +76,14 @@ public class Test02_Database {
     }
 
     @Test
+    void shouldBeNullCreditIdOnDebitBuy() {
+        DataHelper.deleteData();
+        new FrontendHelper(BuyType.DEBIT).buyOnApprovedCard();
+        OrderEntity order = DataHelper.getOrder();
+        assertNull(order.getCreditId());
+    }
+
+    @Test
     void checkForeignKeyCreditBuy() {
         DataHelper.deleteData();
         new FrontendHelper(BuyType.CREDIT).buyOnApprovedCard();
@@ -84,6 +92,14 @@ public class Test02_Database {
         OrderEntity order = DataHelper.getOrder();
         assertTrue(order.isValid());
         assertEquals(credit.getId(), order.getCreditId());
+    }
+
+    @Test
+    void shouldBeNullPaymentIdOnCreditBuy() {
+        DataHelper.deleteData();
+        new FrontendHelper(BuyType.CREDIT).buyOnApprovedCard();
+        OrderEntity order = DataHelper.getOrder();
+        assertNull(order.getPaymentId());
     }
 
     @Test
@@ -102,10 +118,6 @@ public class Test02_Database {
         new FrontendHelper(BuyType.DEBIT).buyOnApprovedCard();
         PaymentEntity payment = DataHelper.getPayment();
         assertNull(payment);
-    }
-
-    void printParams() {
-        System.out.println(DataHelper.getParams());
     }
 
 }

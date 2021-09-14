@@ -18,7 +18,7 @@ import java.util.Properties;
 public class DataHelper {
 
     public enum BuyType {CREDIT, DEBIT}
-    private static final Faker faker = new Faker(new Locale("en"));
+    public static final Faker faker = new Faker(new Locale("en"));
 
     static String dbUrl;
     static String dbUser;
@@ -78,8 +78,8 @@ public class DataHelper {
     public static String getShortHolder() {
         return "Z";
     }
-    public static String generateName() {
-        return faker.name().fullName().toUpperCase();
+    public static String generateHolder() {
+        return (DataHelper.faker.name().firstName() + " " + DataHelper.faker.name().lastName()).toUpperCase();
     }
     public static String generateMonth() {
         return String.format("%02d", faker.random().nextInt(1,12));
